@@ -1,0 +1,17 @@
+package Controller.AuthHeadersGenerator;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+public class AuthCommon {
+	public static final Random RAND = new Random();
+
+	protected List<HttpParameter> toParamList(HttpParameter[] params) {
+		List<HttpParameter> paramList = new ArrayList<HttpParameter>(params.length);
+		paramList.addAll(Arrays.asList(params));
+		return paramList;
+	}
+
+}

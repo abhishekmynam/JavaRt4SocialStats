@@ -1,0 +1,23 @@
+package Implementations;
+
+import java.util.List;
+
+import CentralObjects.TweetDTO;
+import Controller.SocialMediaUserAuth;
+
+public class TwittersSearch implements ITwitterSearch {
+
+	public List<TweetDTO> GetTwitterSearchWithKeyWord(SocialMediaUserAuth auth, String searchString) {
+		
+		
+		return null;
+	}
+	
+	private String TwitterURLBuilder(List<String> urlParameters)
+	{
+		return null;
+		
+	}
+	
+
+}

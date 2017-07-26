@@ -1,0 +1,99 @@
+package Controller;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Random;
+
+public class MainController extends oAuthBase implements IController {
+
+	public String AuthFacebook(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+	public String AuthTwitter() {
+		String url = "https://api.twitter.com/1.1/statuses/user_timeline.json" + "?screen_name=salesforce&count=10";
+		String header = getTwitterHeader(url, "GET");
+
+		URL myURL;
+		try {
+			myURL = new URL(url);
+			HttpURLConnection myURLConnection = (HttpURLConnection) myURL.openConnection();
+			myURLConnection.setRequestProperty("Authorization", header);
+			BufferedReader tweets = new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
+
+			String httpCode;
+
+			while ((httpCode = tweets.readLine()) != null) {
+				System.out.println(httpCode);
+			}
+			tweets.close();
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// webReq.Headers.Add("Authorization", header);
+		return null;
+	}
+
+	public String AuthInstagram(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+	private String getTwitterHeader(String url, String method) {
+		String auth = "";
+		TwitterKeys keys = new TwitterKeys();
+		String consumerKey = keys.ConsumerKey;
+		String consumerSecret = keys.ConsumerSecret;
+		String authToken = keys.AuthToken;
+		String authSecret = keys.AuthTokenSecret;
+		Random random = new Random();
+		String randNo = Integer.toString(random.nextInt(9999999 - 123400 + 1) + 123400);
+		String signature;
+
+		try {
+			String uri = "", parameters = "";
+			String timeStamp = Long.toString(System.currentTimeMillis() / 1000L);
+			StringBuilder base = new StringBuilder(method).append("&").append(encode(constructRequestURL(url))).append("&");
+			
+			//signature = GenerateSignature(new URI(url), consumerKey, consumerSecret, authToken, authSecret, method,
+				//	timeStamp, randNo, uri, parameters);
+			
+			
+			
+			
+			
+			
+			
+			auth = "OAuth ";
+			auth += "oauth_consumer_key=\"" + URLEncoder.encode(consumerKey, "UTF-8") + "\",";
+			auth += "oauth_nonce=\"" + URLEncoder.encode(randNo, "UTF-8") + "\",";
+			auth += "oauth_signature=\"" + URLEncoder.encode(signature, "UTF-8") + "\",";
+			auth += "oauth_signature_method=\"" + "HMAC-SHA1" + "\",";
+			auth += "oauth_timestamp=\"" + timeStamp + "\",";
+			auth += "oauth_token=\"" + URLEncoder.encode(authToken, "UTF-8") + "\",";
+			auth += "oauth_version=\"" + "1.0\"";
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return auth;
+	}
+
+	@Override
+	public String AuthTwitter(SocialMediaUserAuth auth) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

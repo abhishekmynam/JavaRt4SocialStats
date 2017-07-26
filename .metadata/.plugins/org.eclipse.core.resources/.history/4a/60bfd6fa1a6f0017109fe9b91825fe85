@@ -1,0 +1,123 @@
+package Implementations;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+
+import CentralObjects.TweetDTO;
+import Controller.SocialMediaUserAuth;
+import Controller.AuthHeadersGenerator.TwitterAuthHeaderGen;
+
+public class TwitterTimeline {
+
+	private List<TweetDTO> Tweets = new ArrayList<TweetDTO>();
+	private long MaxId = 0;
+
+	public String GetTwitterTimelineWithScreenname(SocialMediaUserAuth auth, String screenName, int count) {
+
+		List<TweetDTO> tweets = new ArrayList<TweetDTO>();
+		String url = "https://api.twitter.com/1.1/statuses/user_timeline.json" + "?screen_name=" + screenName
+				+ "&count=" + count;
+		TwitterAuthHeaderGen headerGen = new TwitterAuthHeaderGen();
+		String header = headerGen.generateAuthorizationHeader("GET", url, null);
+		URL myURL;
+		StringBuilder timeLine = new StringBuilder();
+		try {
+
+			myURL = new URL(url);
+			HttpURLConnection myURLConnection = (HttpURLConnection) myURL.openConnection();
+			myURLConnection.setRequestProperty("Authorization", header);
+			BufferedReader tweetString = new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
+			timeLine.append(tweetString.readLine());
+			tweets = convertResponseToTweet(timeLine.toString());
+			while (tweets.size() < count) {
+				timeLine = new StringBuilder(GetTwitterTimelineWithScreennameAndMaxId(auth, screenName, MaxId));
+				tweets.addAll(convertResponseToTweet(timeLine.toString()));
+
+			}
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "tweets";
+	}
+
+	public String GetTwitterTimelineWithScreennameAndMaxId(SocialMediaUserAuth auth, String screenName, long maxId) {
+		String url = "https://api.twitter.com/1.1/statuses/user_timeline.json" + "?screen_name=" + screenName + "maxid="
+				+ maxId;
+		TwitterAuthHeaderGen headerGen = new TwitterAuthHeaderGen();
+		String header = headerGen.generateAuthorizationHeader("GET", url, null);
+		StringBuilder timeLine = new StringBuilder();
+		URL myURL;
+		try {
+			myURL = new URL(url);
+			HttpURLConnection myURLConnection = (HttpURLConnection) myURL.openConnection();
+			myURLConnection.setRequestProperty("Authorization", header);
+			BufferedReader tweetString = new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
+			timeLine.append(tweetString.readLine());
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return timeLine.toString();
+	}
+
+	private List<TweetDTO> convertResponseToTweet(String response) {
+		JSONArray tweetarray;
+		MaxId = 9223372036854775807L;
+		List<TweetDTO> localTweet = new ArrayList<TweetDTO>();
+		try {
+			tweetarray = new JSONArray(response);
+
+			for (int i = 0; i < tweetarray.length(); i++) {
+				TweetDTO tweet = new TweetDTO();
+				JSONObject tweetJson = tweetarray.getJSONObject(i);
+				tweet.Id = (long) tweetJson.get("id");
+				tweet.retweets = (int) tweetJson.get("retweet_count");
+				tweet.screenName = (String) tweetJson.getJSONObject("user").get("screen_name");
+				tweet.tweetDate = (String) tweetJson.get("created_at");
+				// tweet.tweetImage = tweetJson.getJSONObject("entities");
+				tweet.tweetText = (String) tweetJson.get("text");
+				tweet.userImage = (String) tweetJson.getJSONObject("user").get("profile_image_url");
+				tweet.userName = (String) tweetJson.getJSONObject("user").get("name");
+				JSONArray urls = tweetJson.getJSONObject("entities").getJSONArray("urls");
+
+				for (int j = 0; j < urls.length(); j++) {
+					JSONArray js = (JSONArray) urls.get(j);
+					//tweet.tweetImage.add();
+				}
+				if (MaxId > tweet.Id) {
+					MaxId = tweet.Id;
+				}
+				localTweet.add(tweet);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return localTweet;
+	}
+
+	/*
+	 * while (tweets.size() < count) { JSONObject jObject = new
+	 * JSONObject(timeLine.substring(1, timeLine.length() - 1).toString());
+	 * System.out.println(jObject.get("screen_name")); JSONStringer parser = new
+	 * JSONStringer(); // JSONObject json = (JSONObject) parser. //
+	 * parser.parse(timeLine.substring(1, // timeLine.length()-1).toString());
+	 * 
+	 * }
+	 */
+}

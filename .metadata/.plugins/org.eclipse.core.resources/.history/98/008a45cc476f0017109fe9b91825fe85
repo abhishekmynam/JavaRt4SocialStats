@@ -1,0 +1,12 @@
+package Controller;
+
+import java.util.List;
+
+import CentralObjects.TweetDTO;
+
+public interface IController {
+	String AuthFacebook(SocialMediaUserAuth auth);
+	List<TweetDTO> GetTwitterTimelineWithScreenname(SocialMediaUserAuth auth,String screenName, int count);
+	List<TweetDTO> GetTwitterTimelineWithScreennameAndMaxId(SocialMediaUserAuth auth, String screenName, long maxId, int count)
+	String AuthInstagram(SocialMediaUserAuth auth);
+}

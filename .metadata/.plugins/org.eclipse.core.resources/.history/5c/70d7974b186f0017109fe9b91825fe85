@@ -1,0 +1,21 @@
+package Controller;
+
+import Implementations.TwitterTimeline;
+
+public class MainController implements IController {
+
+	public String AuthFacebook(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+	public String GetTwitterTimelineWithScreenname(SocialMediaUserAuth auth, String screenName, long count) {
+		TwitterTimeline twitter = new TwitterTimeline();
+		return twitter.GetTwitterTimelineWithScreenname(auth, screenName, count);
+	}
+
+	public String AuthInstagram(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+
+}

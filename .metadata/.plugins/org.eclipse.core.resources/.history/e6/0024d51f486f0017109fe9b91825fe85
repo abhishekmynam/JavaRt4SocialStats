@@ -1,0 +1,29 @@
+package Controller;
+
+import java.util.List;
+
+import CentralObjects.TweetDTO;
+import Implementations.TwitterTimeline;
+
+public class MainController implements IController {
+
+	public String AuthFacebook(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+	public List<TweetDTO> GetTwitterTimelineWithScreenname(SocialMediaUserAuth auth, String screenName, int count) {
+		TwitterTimeline twitter = new TwitterTimeline();
+		return twitter.GetTwitterTimelineWithScreenname(auth, screenName, count);
+	}
+	
+	public List<TweetDTO> GetTwitterTimelineWithScreennameAndMaxId(SocialMediaUserAuth auth, String screenName, long maxId, int count) {
+		TwitterTimeline twitter = new TwitterTimeline();
+		return twitter.GetTwitterTimelineWithScreennameAndMaxId(auth, screenName, maxId, count);
+	}
+
+	public String AuthInstagram(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+
+}

@@ -1,0 +1,9 @@
+package Implementations;
+
+import java.util.Date;
+
+import Controller.SocialMediaUserAuth;
+
+public interface ITwitterSearch {
+	GetTwitterSearchWithKeyWord(SocialMediaUserAuth auth, String searchString)
+}

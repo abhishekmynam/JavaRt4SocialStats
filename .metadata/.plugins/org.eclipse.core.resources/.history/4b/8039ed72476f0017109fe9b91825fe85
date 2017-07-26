@@ -1,0 +1,19 @@
+package Controller;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import CentralObjects.TweetDTO;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		MainController mc = new MainController();
+		List<TweetDTO> x = new ArrayList<TweetDTO>();
+		x = mc.GetTwitterTimelineWithScreenname(null, "salesforce", 250);
+		System.out.println(x);
+
+	}
+
+}

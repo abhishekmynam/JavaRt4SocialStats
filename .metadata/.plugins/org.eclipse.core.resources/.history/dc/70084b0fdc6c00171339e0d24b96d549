@@ -1,0 +1,56 @@
+package Controller;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import OAuthSetup.OAuthAuthenticate;
+
+
+public class MainController implements IController {
+
+	public String AuthFacebook(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+	public String AuthTwitter() {
+		String url = "https://api.twitter.com/1.1/statuses/user_timeline.json" + "?screen_name=salesforce&count=10";
+		OAuthAuthenticate oAuth = new OAuthAuthenticate();
+		String header = oAuth.generateAuthorizationHeader("GET", url, null);
+		header = "OAuth oauth_consumer_key=\"I29lYEvNNhq8jnkha6Kwbzx7L\",oauth_nonce=\"9920063\",oauth_signature=\"%2fSDjx3vSpbDilO6bTLVFYuGB0oE%3d\",oauth_signature_method=\"HMAC-SHA1\",oauth_timestamp=\"1500493549\",oauth_token=\"189905335-W1QcrtoUlHSOxicSX7f3QuskUO7ZKRtqu6U330w4\",oauth_version=\"1.0\"";
+		URL myURL;
+		try {
+			myURL = new URL(url);
+			HttpURLConnection myURLConnection = (HttpURLConnection) myURL.openConnection();
+			myURLConnection.setRequestProperty("Authorization", header);
+			BufferedReader tweets = new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
+			
+			String httpCode;
+
+			while ((httpCode = tweets.readLine()) != null) {
+				System.out.println(httpCode);
+			}
+			tweets.close();
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// webReq.Headers.Add("Authorization", header);
+		return null;
+	}
+
+	public String AuthInstagram(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+	@Override
+	public String AuthTwitter(SocialMediaUserAuth auth) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

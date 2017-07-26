@@ -1,0 +1,19 @@
+package Controller;
+
+import java.net.URI;
+
+public class oAuthBase {
+	
+	public String GenerateSignature(URI url, String consumerKey, String consumerSecret, String token, String tokenSecret, String httpMethod, String timeStamp, String nonce,  String normalizedUrl,  String normalizedRequestParameters)
+    {
+        return GenerateSignature(url, consumerKey, consumerSecret, token, tokenSecret, httpMethod, timeStamp, nonce, "HMACSHA1",  normalizedUrl,  normalizedRequestParameters);
+    }
+
+	private String GenerateSignature(URI url, String consumerKey, String consumerSecret, String token,
+			String tokenSecret, String httpMethod, String timeStamp, String nonce, String string, String normalizedUrl,
+			String normalizedRequestParameters) {
+		
+		return null;
+	}
+
+}

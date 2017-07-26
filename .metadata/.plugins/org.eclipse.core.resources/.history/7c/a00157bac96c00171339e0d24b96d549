@@ -1,0 +1,5 @@
+package OAuthSetup.conf;
+
+public class Configuration {
+
+}

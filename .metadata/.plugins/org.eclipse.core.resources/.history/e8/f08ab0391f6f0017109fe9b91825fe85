@@ -1,0 +1,7 @@
+package Controller;
+
+public interface IController {
+	String AuthFacebook(SocialMediaUserAuth auth);
+	String GetTwitterTimelineWithScreenname(SocialMediaUserAuth auth,String screenName, int count);
+	String AuthInstagram(SocialMediaUserAuth auth);
+}

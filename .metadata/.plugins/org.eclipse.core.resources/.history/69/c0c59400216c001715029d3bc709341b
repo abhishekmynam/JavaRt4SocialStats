@@ -1,0 +1,55 @@
+package Controller;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.util.Random;
+
+public class MainController implements IController {
+
+	public String AuthFacebook(SocialMediaUserAuth auth) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String AuthTwitter(SocialMediaUserAuth auth) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String AuthInstagram(SocialMediaUserAuth auth) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private String getTwitterHeader( String url,String method)
+    {
+        TwitterKeys keys = new TwitterKeys();
+        String consumerKey = keys.ConsumerKey;
+        String consumerSecret = keys.ConsumerSecret;
+        String authToken = keys.AuthToken;
+        String authSecret = keys.AuthTokenSecret;
+        
+        Random random = new Random();
+        String randNo =Integer.toString(random.nextInt(9999999 - 123400 + 1) + 123400);
+
+
+        String uri = "", parameters = "";
+        OAuthBase oAuth = new OAuthBase();
+        String timeStamp = oAuth.GenerateTimeStamp();
+        String signature = oAuth.GenerateSignature(new URI(url), consumerKey, consumerSecret, authToken, authSecret, method, timeStamp, randNo, out uri, out parameters);
+        String auth = "";
+
+
+        auth = "OAuth ";
+        auth += "oauth_consumer_key=\"" + URLEncoder.encode(consumerKey, "UTF-8") + "\",";
+        auth += "oauth_nonce=\"" + URLEncoder.encode(randNo, "UTF-8") + "\",";
+        auth += "oauth_signature=\"" + URLEncoder.encode(signature, "UTF-8") + "\",";
+        auth += "oauth_signature_method=\"" + "HMAC-SHA1" + "\",";
+        auth += "oauth_timestamp=\"" + timeStamp + "\",";
+        auth += "oauth_token=\"" + URLEncoder.encode(authToken, "UTF-8") + "\",";
+        auth += "oauth_version=\"" + "1.0\"";
+        
+        return auth;
+    }
+
+}

@@ -1,0 +1,55 @@
+package Controller;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import OAuthSetup.OAuthAuthenticate;
+
+
+public class MainController implements IController {
+
+	public String AuthFacebook(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+	public String AuthTwitter() {
+		String url = "https://api.twitter.com/1.1/statuses/user_timeline.json" + "?screen_name=salesforce&count=10";
+		String header = generateAuthorizationHeader("GET", url, null);
+
+		URL myURL;
+		try {
+			myURL = new URL(url);
+			HttpURLConnection myURLConnection = (HttpURLConnection) myURL.openConnection();
+			myURLConnection.setRequestProperty("Authorization", header);
+			BufferedReader tweets = new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
+
+			String httpCode;
+
+			while ((httpCode = tweets.readLine()) != null) {
+				System.out.println(httpCode);
+			}
+			tweets.close();
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// webReq.Headers.Add("Authorization", header);
+		return null;
+	}
+
+	public String AuthInstagram(SocialMediaUserAuth auth) {
+		return null;
+	}
+
+	@Override
+	public String AuthTwitter(SocialMediaUserAuth auth) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

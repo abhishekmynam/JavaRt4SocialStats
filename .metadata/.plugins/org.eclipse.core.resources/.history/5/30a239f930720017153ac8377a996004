@@ -1,0 +1,38 @@
+package Implementations;
+
+import java.util.List;
+
+import CentralObjects.TweetDTO;
+import Controller.SocialMediaUserAuth;
+
+public class TwittersSearch implements ITwitterSearch {
+
+	public List<TweetDTO> GetTwitterSearchWithKeyWord(SocialMediaUserAuth auth, List<String> searchString) {
+
+		return null;
+	}
+
+	private String TwitterURLBuilder(List<String> urlParameters) {
+		StringBuilder TwitterURL = new StringBuilder("https://twitter.com/search?q=");
+		for (String param : urlParameters) {
+			if (param.contains("@")) {
+				TwitterURL = TwitterURL.append("%40").append(param.substring(1));
+			} else if (param.contains("#")) {
+				TwitterURL = TwitterURL.append("%23").append(param.substring(1));
+			} else if (param.contains("OR")) {
+				String[] params = param.split(" ");
+				for (String p : params) {
+					if (p.equals("OR"))
+						p = "%20OR%20";
+					TwitterURL = TwitterURL.append(p);
+				}
+			} else {
+				TwitterURL = TwitterURL.append("%40").append(param);
+			}
+
+		}
+		return null;
+
+	}
+
+}

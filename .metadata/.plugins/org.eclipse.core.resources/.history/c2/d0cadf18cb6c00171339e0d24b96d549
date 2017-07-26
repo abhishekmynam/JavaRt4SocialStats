@@ -1,0 +1,5 @@
+package OAuthSetup;
+
+public abstract class OAuthToken {
+
+}

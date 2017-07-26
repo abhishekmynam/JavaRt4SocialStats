@@ -1,0 +1,264 @@
+package Controller;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+public class oAuthBase {
+
+	private static final String OAuthParameterPrefix = "oauth_";
+	private static final String OAuthVersionKey = "oauth_version";
+	private static final String OAuthVersion = "1.0";
+	private static final String OAuthNonceKey = "oauth_nonce";
+	private static final String OAuthTimestampKey = "oauth_timestamp";
+	private static final String OAuthSignatureMethodKey = "oauth_signature_method";
+	private static final String OAuthConsumerKeyKey = "oauth_consumer_key";
+	private static final String OAuthTokenKey = "oauth_token";
+
+	protected String GenerateSignature(URI url, String consumerKey, String consumerSecret, String token,
+			String tokenSecret, String httpMethod, String timeStamp, String nonce, String normalizedUrl,
+			String normalizedRequestParameters) {
+		return GenerateSignature(url, consumerKey, consumerSecret, token, tokenSecret, httpMethod, timeStamp, nonce,
+				"HMACSHA1", normalizedUrl, normalizedRequestParameters);
+	}
+
+	private String GenerateSignature(URI url, String consumerKey, String consumerSecret, String token,
+			String tokenSecret, String httpMethod, String timeStamp, String nonce, String signatureType,
+			String normalizedUrl, String normalizedRequestParameters) {
+		normalizedUrl = null;
+		normalizedRequestParameters = null;
+		String signatureBase;
+		switch (signatureType) {
+		case "PLAINTEXT":
+			try {
+				return URLEncoder.encode(consumerSecret, "UTF-8") + tokenSecret == null ? ""
+						: URLEncoder.encode(tokenSecret, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		case "HMACSHA1":
+
+			Mac hmac;
+			try {
+				signatureBase = GenerateSignatureBase(url, consumerKey, token, tokenSecret, httpMethod, timeStamp,
+						nonce, "HMAC-SHA1", normalizedUrl, normalizedRequestParameters);
+				hmac = Mac.getInstance("HmacSHA1");
+				byte[] hmacKeyBytes;
+				hmacKeyBytes = (URLEncoder.encode(consumerSecret, "UTF-8") + tokenSecret == null ? ""
+						: URLEncoder.encode(tokenSecret, "UTF-8")).getBytes(StandardCharsets.US_ASCII);
+				final SecretKeySpec secretKey = new SecretKeySpec(hmacKeyBytes, "HmacSHA1");
+				hmac.init(secretKey);
+				return GenerateSignatureUsingHash(signatureBase, hmac);
+			} catch (InvalidKeyException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public String GenerateSignatureUsingHash(String signatureBase, Mac hash) {
+		return ComputeHash(hash, signatureBase);
+	}
+
+	private String ComputeHash(Mac hashAlgorithm, String data) {
+		try {
+			/*
+			 * if (hashAlgorithm == null) { throw new
+			 * Exception("hashAlgorithm"); }
+			 * 
+			 * if (data != null && !data.isEmpty()) { throw new
+			 * Exception("data"); }
+			 */
+
+			byte[] dataBuffer = data.getBytes(StandardCharsets.US_ASCII);
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] hashBytes = md.digest(dataBuffer);// hashAlgorithm.ComputeHash(dataBuffer);
+			return hashBytes.toString();
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
+	public String GenerateSignatureBase(URI url, String consumerKey, String token, String tokenSecret,
+			String httpMethod, String timeStamp, String nonce, String signatureType, String normalizedUrl,
+			String normalizedRequestParameters) throws Exception {
+		/*
+		 * if (token == null) { token = ""; }
+		 * 
+		 * if (tokenSecret == null) { tokenSecret = ""; } if (consumerKey !=
+		 * null && !consumerKey.isEmpty()) { throw new Exception("consumerKey");
+		 * } if (httpMethod != null && !httpMethod.isEmpty()) { throw new
+		 * Exception("httpMethod"); }
+		 * 
+		 * if (signatureType != null && !signatureType.isEmpty())
+		 * 
+		 * { throw new Exception("signatureType"); }
+		 */
+
+		normalizedUrl = null;
+		normalizedRequestParameters = null;
+
+		List<QueryParameter> parameters = GetQueryParameters(url.getQuery());
+		parameters.add(new QueryParameter(OAuthVersionKey, OAuthVersion));
+		parameters.add(new QueryParameter(OAuthNonceKey, nonce));
+		parameters.add(new QueryParameter(OAuthTimestampKey, timeStamp));
+		parameters.add(new QueryParameter(OAuthSignatureMethodKey, signatureType));
+		parameters.add(new QueryParameter(OAuthConsumerKeyKey, consumerKey));
+
+		if (token != null && !token.isEmpty()) {
+			parameters.add(new QueryParameter(OAuthTokenKey, token));
+		}
+
+		parameters.sort(new QueryParameterComparer());
+
+		normalizedUrl = url.getScheme() + url.getHost();
+		if (!((url.getScheme() == "http" && url.getPort() == 80)
+				|| (url.getScheme() == "https" && url.getPort() == 443))) {
+			normalizedUrl += ":" + url.getPort();
+		}
+		normalizedUrl += url.getPath();
+		normalizedRequestParameters = NormalizeRequestParameters(parameters);
+
+		StringBuilder signatureBase = new StringBuilder();
+		signatureBase.append(httpMethod.toUpperCase());
+		signatureBase.append("&");
+		signatureBase.append(URLEncoder.encode(normalizedUrl, "UTF-8"));
+		signatureBase.append("&");
+		signatureBase.append(URLEncoder.encode(normalizedRequestParameters, "UTF-8"));
+
+		return signatureBase.toString();
+	}
+
+	protected String NormalizeRequestParameters(List<QueryParameter> parameters) {
+		StringBuilder sb = new StringBuilder();
+		QueryParameter p = null;
+		for (int i = 0; i < parameters.size(); i++) {
+			p = parameters.get(i);
+			sb.append(p.getName());
+			sb.append("=");
+			sb.append(p.getValue());
+
+			if (i < parameters.size() - 1) {
+				sb.append("&");
+			}
+		}
+
+		return sb.toString();
+	}
+
+	protected class QueryParameterComparer implements Comparator<QueryParameter> {
+
+		public int compare(QueryParameter x, QueryParameter y) {
+			if (x.getName() == y.getName()) {
+				return x.getValue().compareTo(y.getValue());
+			} else {
+				return x.getName().compareTo(y.getName());
+			}
+		}
+
+	}
+
+	private List<QueryParameter> GetQueryParameters(String parameters) {
+		if (parameters.startsWith("?")) {
+			parameters = parameters.substring(1);
+		}
+
+		List<QueryParameter> result = new ArrayList<QueryParameter>();
+
+		if (parameters != null && !parameters.isEmpty()) {
+			String[] p = parameters.split("&");
+			for (String s : p) {
+				if ((s != null && !s.isEmpty()) && !s.startsWith(OAuthParameterPrefix)) {
+					if (s.indexOf('=') > -1) {
+						String[] temp = s.split("=");
+						result.add(new QueryParameter(temp[0], temp[1]));
+					} else {
+						result.add(new QueryParameter(s, ""));
+					}
+				}
+			}
+		}
+
+		return result;
+	}
+
+	protected class QueryParameter {
+		private String name = null;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public void setValue(String value) {
+			this.value = value;
+		}
+
+		private String value = null;
+
+		public QueryParameter(String name, String value) {
+			this.name = name;
+			this.value = value;
+		}
+
+		public QueryParameter() {
+		}
+
+	}
+    private void parseGetParameters(String url, List<HttpParameter> signatureBaseParams) {
+        int queryStart = url.indexOf("?");
+        if (-1 != queryStart) {
+            url.split("&");
+            String[] queryStrs = url.substring(queryStart + 1).split("&");
+            try {
+                for (String query : queryStrs) {
+                    String[] split = query.split("=");
+                    if (split.length == 2) {
+                        signatureBaseParams.add(
+                                new HttpParameter(URLDecoder.decode(split[0],
+                                        "UTF-8"), URLDecoder.decode(split[1],
+                                        "UTF-8"))
+                        );
+                    } else {
+                        signatureBaseParams.add(
+                                new HttpParameter(URLDecoder.decode(split[0],
+                                        "UTF-8"), "")
+                        );
+                    }
+                }
+            } catch (UnsupportedEncodingException ignore) {
+            }
+
+        }
+
+    }
+
+}

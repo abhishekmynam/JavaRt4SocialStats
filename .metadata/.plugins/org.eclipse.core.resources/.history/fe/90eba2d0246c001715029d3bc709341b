@@ -1,0 +1,37 @@
+package Controller;
+
+import java.net.URI;
+import java.net.URLEncoder;
+
+import javax.crypto.Mac;
+
+public class oAuthBase {
+	
+	public String GenerateSignature(URI url, String consumerKey, String consumerSecret, String token, String tokenSecret, String httpMethod, String timeStamp, String nonce,  String normalizedUrl,  String normalizedRequestParameters)
+    {
+        return GenerateSignature(url, consumerKey, consumerSecret, token, tokenSecret, httpMethod, timeStamp, nonce, "HMACSHA1",  normalizedUrl,  normalizedRequestParameters);
+    }
+
+	private String GenerateSignature(URI url, String consumerKey, String consumerSecret, String token, String tokenSecret, String httpMethod, String timeStamp, String nonce, String signatureType, String normalizedUrl, String normalizedRequestParameters){
+		normalizedUrl = null;
+        normalizedRequestParameters = null;
+
+        switch (signatureType)
+        {
+            //case SignatureTypes.PLAINTEXT:
+            //    return HttpUtility.UrlEncode(String.Format("{0}&{1}", consumerSecret, tokenSecret));
+            case "HMACSHA1":
+                String signatureBase = GenerateSignatureBase(url, consumerKey, token, tokenSecret, httpMethod, timeStamp, nonce, "HMAC-SHA1",  normalizedUrl,  normalizedRequestParameters);
+                Mac hmac = Mac.getInstance("HmacSHA1");
+                hmac.init(Encoding.ASCII.GetBytes(String.Format("{0}&{1}", URLEncoder.encode(consumerSecret, "UTF-8"), String.IsNullOrEmpty(tokenSecret) ? "" :  URLEncoder.encode(tokenSecret, "UTF-8"))));
+
+                return GenerateSignatureUsingHash(signatureBase, hmac);
+            //case SignatureTypes.RSASHA1:
+            //    throw new NotImplementedException();
+            default:
+                throw new Exception("Unknown signature type");
+        }
+		return null;
+	}
+
+}

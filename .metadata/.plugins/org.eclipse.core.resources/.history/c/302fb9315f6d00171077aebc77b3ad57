@@ -1,0 +1,10 @@
+package Controller.AuthHeadersGenerator;
+
+public class AllAuthKeys {
+	public class TwitterKeys {
+		protected String ConsumerKey = "I29lYEvNNhq8jnkha6Kwbzx7L";
+		protected String ConsumerSecret = "xNXNpNJRP0hYgt4dLRzeB4ve5gdVw52gPGI8pjWJzqtLYNLWOR";
+		protected String AuthToken = "189905335-W1QcrtoUlHSOxicSX7f3QuskUO7ZKRtqu6U330w4";
+		protected String AuthTokenSecret = "T5UIgLgDPZms7oqZnxMwm6M3S54AEngu0yVAfgcZPvaVG";
+	}
+}

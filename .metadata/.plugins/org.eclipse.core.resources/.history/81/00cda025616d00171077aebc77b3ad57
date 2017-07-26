@@ -1,0 +1,5 @@
+package Controller.AuthHeadersGenerator;
+
+public class HttpParameter {
+
+}

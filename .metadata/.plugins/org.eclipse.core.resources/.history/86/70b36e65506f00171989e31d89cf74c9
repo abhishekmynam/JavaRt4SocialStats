@@ -1,0 +1,36 @@
+package Controller;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import CentralObjects.TweetDTO;
+
+public class MainClass {
+
+	public static void main(String[] args) {
+		MainController mc = new MainController();
+		List<TweetDTO> x = new ArrayList<TweetDTO>();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		Date d1 = null;
+		try {
+			d1 = sdf.parse("21/07/2017");
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		Date d2 = null;
+		try {
+			d2 = sdf.parse("22/07/2017");
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		x = mc.GetTwitterTimelineWithScreennameDateRange(null, "salesforce",d1,d2);
+		for (TweetDTO t : x) {
+			System.out.println(t.tweetDate);
+		}
+
+	}
+
+}

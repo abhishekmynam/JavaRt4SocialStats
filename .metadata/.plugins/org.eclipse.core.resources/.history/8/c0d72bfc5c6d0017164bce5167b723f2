@@ -1,0 +1,48 @@
+package Controller.AuthHeadersGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import OAuthSetup.HttpParameter;
+import OAuthSetup.TwitterKeys;
+
+public class TwitterAuthHeaderGen {
+	public String generateAuthorizationHeader(String method, String url, HttpParameter[] params) {
+		long timestamp = System.currentTimeMillis() / 1000;
+		long nonce = timestamp + RAND.nextInt();
+		if (null == params) {
+			params = new HttpParameter[0];
+		}
+		TwitterKeys keys = new TwitterKeys();
+		List<HttpParameter> oauthHeaderParams = new ArrayList<HttpParameter>(5);
+		oauthHeaderParams.add(new HttpParameter("oauth_consumer_key", keys.ConsumerKey));
+		oauthHeaderParams.add(new HttpParameter("oauth_nonce", nonce));
+
+		oauthHeaderParams.add(new HttpParameter("oauth_signature_method", "HMAC-SHA1"));
+		oauthHeaderParams.add(new HttpParameter("oauth_timestamp", timestamp));
+		oauthHeaderParams.add(new HttpParameter("oauth_token", keys.AuthToken));
+		oauthHeaderParams.add(new HttpParameter("oauth_version", "1.0"));
+
+		List<HttpParameter> signatureBaseParams = new ArrayList<HttpParameter>(
+				oauthHeaderParams.size() + params.length);
+		signatureBaseParams.addAll(oauthHeaderParams);
+		if (!HttpParameter.containsFile(params)) {
+			signatureBaseParams.addAll(toParamList(params));
+		}
+		parseGetParameters(url, signatureBaseParams);
+		StringBuilder base = new StringBuilder(method).append("&")
+				.append(HttpParameter.encode(constructRequestURL(url))).append("&");
+		base.append(HttpParameter.encode(normalizeRequestParameters(signatureBaseParams)));
+		String oauthBaseString = base.toString();
+		String signature = generateSignature(oauthBaseString);
+
+		oauthHeaderParams.add(new HttpParameter("oauth_signature", signature));
+
+		// http://oauth.net/core/1.0/#rfc.section.9.1.1
+		if (realm != null) {
+			oauthHeaderParams.add(new HttpParameter("realm", realm));
+		}
+		String encodedParam = encodeParameters(oauthHeaderParams, ",", true);
+		return "OAuth " + encodedParam;
+	}
+}

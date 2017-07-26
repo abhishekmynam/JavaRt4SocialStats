@@ -1,0 +1,5 @@
+package CentralObjects;
+
+public class TweetDTO {
+
+}
