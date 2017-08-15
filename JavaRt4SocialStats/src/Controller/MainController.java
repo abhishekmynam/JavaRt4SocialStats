@@ -3,6 +3,7 @@ package Controller;
 import java.util.Date;
 import java.util.List;
 
+import CentralObjects.GeoSearchDTO;
 import CentralObjects.TweetDTO;
 import Implementations.*;
 
@@ -32,6 +33,11 @@ public class MainController implements IController {
 	public List<TweetDTO> GetTwitterSearchWithKeyWord(SocialMediaUserAuth auth, List<String> searchString) {
 		ITwitterSearch twitter = new TwittersSearch();
 		return twitter.GetTwitterSearchWithKeyWord(auth, searchString);
+	}
+	
+	public List<GeoSearchDTO> GetTwitterGeoSearchWithKeyWord(SocialMediaUserAuth auth, List<String> searchString) {
+		ITwitterSearch twitter = new TwittersSearch();
+		return twitter.GetTwitterGeoSearchWithKeyWord(auth, searchString);
 	}
 
 	public String AuthInstagram(SocialMediaUserAuth auth) {
